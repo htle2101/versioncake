@@ -38,7 +38,8 @@ class VersionedRequestTest < ActiveSupport::TestCase
   end
 
   test "the version can be overriden by a parameter" do
-    versioned_request = VersionCake::VersionedRequest.new(stub(), 8)
+    versioned_request = VersionCake::VersionedRequest.new(stub())
+    versioned_request.override_version(8)
     assert_equal 8, versioned_request.version
   end
 end
