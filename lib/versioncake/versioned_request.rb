@@ -2,16 +2,17 @@ module VersionCake
   class VersionedRequest
     attr_reader :version, :extracted_version, :is_version_supported
 
-    def initialize(request)
+    def initialize(request, config=VersionCake::Railtie.config.versioncake)
+      @config = config
       derive_version(request)
     end
 
     def supported_versions
-      config.supported_versions(@version)
+      @config.supported_versions(@version)
     end
 
     def is_latest_version?
-      @version == config.latest_version
+      @version == @config.latest_version
     end
 
     def is_version_supported?
@@ -25,13 +26,9 @@ module VersionCake
 
     private
 
-    def config
-      VersionCake::Railtie.config.versioncake
-    end
-
     def apply_strategies(request)
       version = nil
-      config.extraction_strategies.each do |strategy|
+      @config.extraction_strategies.each do |strategy|
         version = strategy.extract(request)
         break unless version.nil?
       end
@@ -41,8 +38,8 @@ module VersionCake
     def derive_version(request)
       begin
         @extracted_version = apply_strategies(request)
-        @version = @extracted_version || config.default_version || config.latest_version
-        @is_version_supported = config.supports_version? @version
+        @version = @extracted_version || @config.default_version || @config.latest_version
+        @is_version_supported = @config.supports_version? @version
       rescue Exception
         @is_version_supported = false
       end
